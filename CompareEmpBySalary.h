@@ -18,6 +18,7 @@ public:
             CompareEmpByID comparer;
             return comparer(e1, e2);
         }
+        return e1->salary < e2->salary;
     }
 };
 
