@@ -48,7 +48,8 @@ public:
         }
 
         shared_ptr<Company> company = allCompanies.findByID(CompanyID);
-        if (allEmpByID.findByID(EmployeeID) == nullptr || company == nullptr) {
+        shared_ptr<Employee> emp = shared_ptr<Employee>(Employee(EmployeeID,0,0, nullptr));
+        if (allEmpByID.find(emp) == nullptr || company == nullptr) {
             return FAILURE;
         }
     }
