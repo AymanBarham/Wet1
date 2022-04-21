@@ -13,6 +13,7 @@ class AVLTree {
         int height;
     };
 
+    Pred predicate;
     shared_ptr<TreeNode> root;
     shared_ptr<TreeNode> max;
     AVLTree() =default;
@@ -27,7 +28,7 @@ class AVLTree {
             return treeNode;
         }
 
-
+        if (predicate(toFind,)
     }
 
 };
