@@ -13,7 +13,7 @@ using std::shared_ptr;
 
 class CompareEmpBySalary {
 public:
-    bool operator()(shared_ptr<Employee> e1, shared_ptr<Employee> e2) {
+    bool operator()(shared_ptr<Employee> e1, shared_ptr<Employee> e2) const {
         if (e1->salary == e2->salary) {
             CompareEmpByID comparer;
             return !comparer(e1, e2);

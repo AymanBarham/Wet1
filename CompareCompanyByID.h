@@ -12,7 +12,7 @@ using std::shared_ptr;
 
 class CompareCompanyByID {
 public:
-    bool operator()(shared_ptr<Company> c1, shared_ptr<Company> c2) {
+    bool operator()(shared_ptr<Company> c1, shared_ptr<Company> c2) const {
         return c1->id < c2->id;
     }
 };

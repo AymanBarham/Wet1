@@ -17,10 +17,10 @@ using std::shared_ptr;
 #include "library1.h"
 
 class DataStructure {
-    AVLTree<shared_ptr<Employee>, CompareEmpByID> allEmpByID;
-    AVLTree<shared_ptr<Employee>, CompareEmpBySalary> allEmpBySalary;
-    AVLTree<shared_ptr<Company>, CompareCompanyByID> allCompanies;
-    AVLTree<shared_ptr<Company>, CompareCompanyByID> workingCompanies;
+    AVLTree<Employee, CompareEmpByID> allEmpByID;
+    AVLTree<Employee, CompareEmpBySalary> allEmpBySalary;
+    AVLTree<Company, CompareCompanyByID> allCompanies;
+    AVLTree<Company, CompareCompanyByID> workingCompanies;
     shared_ptr<Employee> highestSalaryEmp;
 public:
     DataStructure() =default;
@@ -32,8 +32,9 @@ public:
         }
 
         try {
-            allCompanies.add(shared_ptr<Company>(new Company(CompanyID, Value)));
-        } catch (std::exception& e) { // add avl exception here
+
+            allCompanies.insert(shared_ptr<Company>(new Company(CompanyID, Value)));
+        } catch (AVLTree<Company, CompareCompanyByID>::AlreadyExists& e) { // add avl exception here
             return FAILURE;
         } catch (std::runtime_error& error) {
             return ALLOCATION_ERROR;
@@ -47,7 +48,7 @@ public:
             return INVALID_INPUT;
         }
 
-        shared_ptr<Company> company = allCompanies.findByID(CompanyID);
+        shared_ptr<Company> company = allCompanies.find(CompanyID);
         shared_ptr<Employee> emp = shared_ptr<Employee>(Employee(EmployeeID,0,0, nullptr));
         if (allEmpByID.find(emp) == nullptr || company == nullptr) {
             return FAILURE;

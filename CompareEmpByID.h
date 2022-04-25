@@ -11,7 +11,7 @@ using std::shared_ptr;
 
 class CompareEmpByID {
 public:
-    bool operator()(shared_ptr<Employee> e1, shared_ptr<Employee> e2) {
+    bool operator()(shared_ptr<Employee> e1, shared_ptr<Employee> e2) const {
         return e1->id < e2->id;
     }
 };

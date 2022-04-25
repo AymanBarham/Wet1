@@ -18,6 +18,8 @@ class AVLTree {
     Pred predicate;
     shared_ptr<TreeNode> root;
     shared_ptr<TreeNode> max;
+    int size;
+
     AVLTree() =default;
     ~AVLTree() =default;
 
@@ -43,9 +45,9 @@ class AVLTree {
         }
 
         if (predicate(toFind, treeNode->data)) {
-            return find(treeNode->left);
+            return findNode(treeNode->left, toFind);
         }
-        return find(treeNode->right);
+        return findNode(treeNode->right, toFind);
     }
     int BF(shared_ptr<TreeNode> treeNode) const {
         int hl = 0, hr = 0;
@@ -66,7 +68,6 @@ class AVLTree {
     int getHeight(shared_ptr<TreeNode> node) const {
         return node == nullptr ? -1 : node->height;
     }
-    // change to void and make sure it doesn't exist..
     shared_ptr<TreeNode> insertNode(shared_ptr<TreeNode> toAdd, shared_ptr<TreeNode> target,
                                     shared_ptr<TreeNode> targetFather) {
         if (target == nullptr) {
@@ -81,6 +82,14 @@ class AVLTree {
             target->right = insertNode(toAdd, target->right, target);
         }
 
+        target->height = maxInt(getHeight(target->left), getHeight(target->right)) + 1;
+
+        balanceTree(target);
+
+        target->height = maxInt(getHeight(target->left), getHeight(target->right)) + 1;
+        return target;
+    }
+    void balanceTree(shared_ptr<TreeNode> target) {
         if (BF(target) < -1) {
             if (BF(target->right) == 1) {
                 rotateRL(target);
@@ -94,9 +103,74 @@ class AVLTree {
                 rotateLL(target);
             }
         }
+    }
 
-        target->height = maxInt(getHeight(target->left), getHeight(target->right)) + 1;
-        return target;
+    void removeNode(shared_ptr<TreeNode> toRemove) {
+        if (toRemove->right && toRemove->left) {
+            shared_ptr<TreeNode> temp = toRemove->right;
+            while (temp->left) {
+                temp = temp->left;
+            }
+            shared_ptr<T> tempData = temp->data;
+            temp->data = toRemove->data;
+            toRemove->data = tempData;
+
+            toRemove = temp;
+        }
+
+        shared_ptr<TreeNode> toBalance = toRemove->father;
+        removeNodeWithLessThanTwoSons(toRemove);
+
+
+        while (toBalance) {
+            toBalance->height = maxInt(getHeight(toBalance->left), getHeight(toBalance->right)) + 1;
+            balanceTree(toBalance);
+            toBalance = toBalance->father;
+        }
+    }
+    void removeNodeWithLessThanTwoSons(shared_ptr<TreeNode> toRemove) {
+        if (!toRemove->left && !toRemove->right) { // toRemove is a leaf
+            if (!toRemove->father) { // root is a leaf
+                this->root = nullptr;
+            } else if (toRemove->father->left == toRemove) {
+                toRemove->father->left = nullptr;
+            } else {
+                toRemove->father->right = nullptr;
+            }
+        }
+        if (!toRemove->left) { // toRemove has right son only
+            if (!toRemove->father) { // root is a
+                this->root = toRemove->right;
+                toRemove->right->father = nullptr;
+            } else if (toRemove->father->left == toRemove) {
+                toRemove->father->left = toRemove->right;
+                toRemove->right->father = toRemove->father;
+            } else {
+                toRemove->father->right = toRemove->right;
+                toRemove->right->father = toRemove->father;
+            }
+        }
+
+        if (!toRemove->right) { // toRemove has left son only
+            if (!toRemove->father) { // root is a
+                this->root = toRemove->left;
+                toRemove->left->father = nullptr;
+            } else if (toRemove->father->left == toRemove) {
+                toRemove->father->left = toRemove->left;
+                toRemove->left->father = toRemove->father;
+            } else {
+                toRemove->father->right = toRemove->left;
+                toRemove->left->father = toRemove->father;
+            }
+        }
+    }
+    void fixMax() {
+        this->max = root;
+        if (!root) {
+            while (this->max->right) {
+                this->max = this->max->right;
+            }
+        }
     }
 
 
@@ -121,6 +195,8 @@ class AVLTree {
 
         leftSon->right = node;
         node->father = leftSon;
+
+        node->height = maxInt(getHeight(node->left), getHeight(node->right)) + 1;
     }
     void rotateRR(shared_ptr<TreeNode> node) {
         shared_ptr<TreeNode> rightSon = node->right;
@@ -141,6 +217,8 @@ class AVLTree {
 
         rightSon->left = node;
         node->father = rightSon;
+
+        node->height = maxInt(getHeight(node->left), getHeight(node->right)) + 1;
     }
     void rotateLR(shared_ptr<TreeNode> node) {
         rotateRR(node->left);
@@ -155,6 +233,23 @@ class AVLTree {
     // aux
     int maxInt(int x1, int x2) {
         return x1 > x2 ? x1 : x2;
+    }
+
+public:
+
+    // exceptions
+    class AlreadyExists : public std::exception {};
+
+    void insert(shared_ptr<T> data) {
+        if (!root) {
+            root = initNode(data);
+        } else {
+            if (!findNode(root, data)) {
+                throw AlreadyExists();
+            }
+            insertNode(initNode(data), root, nullptr);
+            ++size;
+        }
     }
 };
 
