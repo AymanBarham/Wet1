@@ -181,7 +181,7 @@ class AVLTree {
 
         leftSon->father = node->father;
         if (node->father == nullptr) {
-            this->node = leftSon;
+            this->root = leftSon;
         } else if (node->father->left == node){
             node->father->left = leftSon;
         } else {
@@ -203,7 +203,7 @@ class AVLTree {
 
         rightSon->father = node->father;
         if (node->father == nullptr) {
-            this->node = rightSon;
+            this->root = rightSon;
         } else if (node->father->left == node){
             node->father->left = rightSon;
         } else {
@@ -239,7 +239,9 @@ public:
 
     // exceptions
     class AlreadyExists : public std::exception {};
+    class DoesntExist : public std::exception {};
 
+    // throws exception AlreadyExists if already exists
     void insert(shared_ptr<T> data) {
         if (!root) {
             root = initNode(data);
@@ -248,9 +250,36 @@ public:
                 throw AlreadyExists();
             }
             insertNode(initNode(data), root, nullptr);
-            ++size;
         }
+        ++size;
+        fixMax();
     }
+    // returns nullptr if not found
+    shared_ptr<T> find(shared_ptr<T> data) const {
+        shared_ptr<TreeNode> toFind = findNode(root, data);
+        return !toFind ? nullptr : toFind->data;
+    }
+    // throws DoesntExist
+    void remove(shared_ptr<T> data) {
+        shared_ptr<TreeNode> toRemove = findNode(root, data);
+        if (!toRemove) {
+            throw DoesntExist();
+        }
+        removeNode(toRemove);
+        size--;
+        fixMax();
+    }
+    shared_ptr<T> getMax() const {
+        return this->max->data;
+    }
+    int getSize() const {
+        return this->size;
+    }
+    bool isEmpty() const {
+        return this->size == 0;
+    }
+
+    // iterator and merge
 };
 
 

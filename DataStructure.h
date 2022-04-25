@@ -32,12 +32,13 @@ public:
         }
 
         try {
-
             allCompanies.insert(shared_ptr<Company>(new Company(CompanyID, Value)));
         } catch (AVLTree<Company, CompareCompanyByID>::AlreadyExists& e) { // add avl exception here
             return FAILURE;
         } catch (std::runtime_error& error) {
             return ALLOCATION_ERROR;
+        } catch (...) {
+            return FAILURE;
         }
 
         return SUCCESS;
@@ -48,11 +49,30 @@ public:
             return INVALID_INPUT;
         }
 
-        shared_ptr<Company> company = allCompanies.find(CompanyID);
-        shared_ptr<Employee> emp = shared_ptr<Employee>(Employee(EmployeeID,0,0, nullptr));
-        if (allEmpByID.find(emp) == nullptr || company == nullptr) {
+        try {
+            shared_ptr<Company> tempCompany = shared_ptr<Company>(new Company(CompanyID, 0));
+            shared_ptr<Company> empCompany = allCompanies.find(tempCompany);
+            shared_ptr<Employee> emp = shared_ptr<Employee>(new Employee(EmployeeID, Salary, Grade, nullptr));
+            if (empCompany == nullptr) {
+                return FAILURE;
+            }
+
+            emp->company = empCompany;
+
+            allEmpByID.insert(emp);
+            allEmpBySalary.insert(emp);
+
+            empCompany->employeesByID.insert(emp);
+            empCompany->employeesBySalary.insert(emp);
+        } catch (AVLTree<Employee, CompareEmpByID>::AlreadyExists& e) {
             return FAILURE;
+        } catch (AVLTree<Employee, CompareEmpBySalary>::AlreadyExists& e) {
+            return FAILURE;
+        } catch (...) {
+            return ALLOCATION_ERROR;
         }
+
+        return SUCCESS;
     }
 
 };
