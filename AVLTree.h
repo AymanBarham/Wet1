@@ -21,7 +21,7 @@ class AVLTree {
     Pred predicate;
     shared_ptr<TreeNode> root;
     shared_ptr<TreeNode> max;
-    int size;
+    int size; // initialize size
 
     AVLTree() =default;
     ~AVLTree() =default;
@@ -34,7 +34,7 @@ class AVLTree {
         node->data = data;
         node->left = nullptr;
         node->right = nullptr;
-        node->father = nullptr;
+        node->father = weak_ptr<TreeNode>();
         node->height = 0;
 
         return node;
@@ -121,7 +121,7 @@ class AVLTree {
             toRemove = temp;
         }
 
-        shared_ptr<TreeNode> toBalance = toRemove->father;
+        shared_ptr<TreeNode> toBalance = toRemove->father.lock();
         removeNodeWithLessThanTwoSons(toRemove);
 
 
@@ -237,9 +237,26 @@ class AVLTree {
     int maxInt(int x1, int x2) {
         return x1 > x2 ? x1 : x2;
     }
+    shared_ptr<TreeNode> findFirstBiggerThanAux(shared_ptr<T> data){
+        if(predicate(max->data , data)){
+            return nullptr;
+        }
+        shared_ptr<TreeNode> node = findLastNodeInSearch(root , nullptr , data);
+//        if(node->data == data){
+//            return node;
+//        }
+        if(!predicate(node->data , data)){
+            return node;
+        }
+        while(node->father && node->father.lock()->right == node){
+            node = node->father.lock();
+        }
+        return node->father.lock();
+    }
 
 public:
 
+    class AVLIter;
     // exceptions
     class AlreadyExists : public std::exception {};
     class DoesntExist : public std::exception {};
@@ -282,7 +299,78 @@ public:
         return this->size == 0;
     }
 
+    shared_ptr<TreeNode> findLastNodeInSearch(shared_ptr<TreeNode> treeNode , shared_ptr<TreeNode> father , shared_ptr<T> toFind){
+        if(treeNode == nullptr){
+            return father;
+        }
+
+        if (treeNode->data == toFind) {
+            return treeNode;
+        }
+
+        if (predicate(toFind, treeNode->data)) {
+            return findLastNodeInSearch(treeNode->left,treeNode ,  toFind);
+        }
+        return findLastNodeInSearch(treeNode->right, treeNode ,toFind);
+    }
+
+    AVLTree::AVLIter findFirstBiggerThan(shared_ptr<T> data){
+        return AVLIter(findFirstBiggerThanAux(data) , max);
+    }
+
+
     // iterator and merge
+    class AVLIter {
+        shared_ptr<TreeNode> current;
+        shared_ptr<TreeNode> finish;
+    public:
+        AVLIter(shared_ptr<TreeNode> current, shared_ptr<TreeNode> finish) : current(current), finish(finish) {}
+        AVLIter() {
+            current = nullptr;
+            finish = nullptr;
+        }
+
+        bool operator==(const AVLIter& iter) {
+            return this->current == iter.current;
+        }
+        bool operator!=(const AVLIter& iter) {
+            return this->current != iter.current;
+        }
+        AVLIter& operator++() {
+            if (current == finish) {
+                current = nullptr;
+            } else {
+                if (current->right) {
+                    current = current->right;
+                    while (current->left) {
+                        current = current->left;
+                    }
+                } else if (!current->father.lock()) {
+                    current = nullptr;
+                } else if (current->father.lock()->left == current) {
+                        current = current->father.lock();
+                    } else {
+                        while (current->father.lock()->right == current) {
+                            current = current->father.lock();
+                        }
+                    }
+                }
+            return *this;
+        }
+
+        shared_ptr<T> operator*(){
+            return current->data;
+        }
+
+        friend class AVLTree<T, Pred>;
+    };
+
+    AVLIter begin() {
+        return AVLIter(this->min, this->max);
+    }
+    AVLIter end(){
+        return AVLIter(nullptr , nullptr);
+    }
 };
 
 
