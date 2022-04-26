@@ -4,13 +4,16 @@
 #define WET1_AVLTREE_H
 
 #include <iostream>
-#include <math.h>
+//#include <math.h>
+using std::shared_ptr;
+using std::weak_ptr;
+
 template<class T, class Pred>
 class AVLTree {
     struct TreeNode {
         shared_ptr<TreeNode> right;
         shared_ptr<TreeNode> left;
-        shared_ptr<TreeNode> father;
+        weak_ptr<TreeNode> father;
         shared_ptr<T> data;
         int height;
     };
