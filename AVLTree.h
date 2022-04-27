@@ -13,7 +13,7 @@ class AVLTree {
     struct TreeNode {
         shared_ptr<TreeNode> right;
         shared_ptr<TreeNode> left;
-        weak_ptr<TreeNode> father;
+        shared_ptr<TreeNode> father;
         shared_ptr<T> data;
         int height;
     };
@@ -24,9 +24,18 @@ class AVLTree {
     int size; // initialize size
 
     AVLTree() =default;
-    ~AVLTree() =default;
+    ~AVLTree() {
+        empty();
+    }
 
-
+    void empty(shared_ptr<TreeNode> toDelete){
+        if(!toDelete){
+            return;
+        }
+        empty(toDelete->left);
+        empty(toDelete->right);
+        delete toDelete;
+    }
     // private functions
     shared_ptr<TreeNode> initNode(shared_ptr<T> data) {
         shared_ptr<TreeNode> node = shared_ptr<TreeNode>(new TreeNode());
@@ -34,7 +43,7 @@ class AVLTree {
         node->data = data;
         node->left = nullptr;
         node->right = nullptr;
-        node->father = weak_ptr<TreeNode>();
+        node->father = nullptr;
         node->height = 0;
 
         return node;
@@ -121,7 +130,7 @@ class AVLTree {
             toRemove = temp;
         }
 
-        shared_ptr<TreeNode> toBalance = toRemove->father.lock();
+        shared_ptr<TreeNode> toBalance = toRemove->father;
         removeNodeWithLessThanTwoSons(toRemove);
 
 
@@ -248,10 +257,10 @@ class AVLTree {
         if(!predicate(node->data , data)){
             return node;
         }
-        while(node->father && node->father.lock()->right == node){
-            node = node->father.lock();
+        while(node->father && node->father->right == node){
+            node = node->father;
         }
-        return node->father.lock();
+        return node->father;
     }
 
 public:
@@ -345,13 +354,13 @@ public:
                     while (current->left) {
                         current = current->left;
                     }
-                } else if (!current->father.lock()) {
+                } else if (!current->father) {
                     current = nullptr;
-                } else if (current->father.lock()->left == current) {
-                        current = current->father.lock();
+                } else if (current->father->left == current) {
+                        current = current->father;
                     } else {
-                        while (current->father.lock()->right == current) {
-                            current = current->father.lock();
+                        while (current->father->right == current) {
+                            current = current->father;
                         }
                     }
                 }
