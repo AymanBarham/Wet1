@@ -237,6 +237,7 @@ public:
         }
         return SUCCESS;
     }
+
     StatusType GetHighestEarner(int CompanyID, int *EmployeeID){
         if(CompanyID == 0 || !EmployeeID){
             return INVALID_INPUT;
@@ -263,6 +264,121 @@ public:
         }
         return SUCCESS;
     }
+
+    StatusType GetAllEmployeesBySalary(int CompanyID, int **Employees, int *NumOfEmployees) {
+        if (CompanyID == 0 || !Employees || !NumOfEmployees) {
+            return INVALID_INPUT;
+        }
+        AVLTree<Employee, CompareEmpBySalary>::AVLIter iterator;
+
+        try {
+            if (CompanyID < 0) {
+                if (allEmpBySalary.isEmpty()) {
+                    return FAILURE;
+                }
+                iterator = allEmpBySalary.begin();
+                *NumOfEmployees = allEmpBySalary.getSize();
+            } else {
+                shared_ptr<Company> tempCompany = workingCompanies.find(shared_ptr<Company>(new Company(CompanyID, 0)));
+                if (!tempCompany) {
+                    return FAILURE;
+                }
+                iterator = tempCompany->employeesBySalary.begin();
+                *NumOfEmployees = tempCompany->employeesBySalary.getSize();
+            }
+
+            *Employees = (int*) malloc(*NumOfEmployees * sizeof(int));
+            if (!(*Employees)) {
+                return ALLOCATION_ERROR;
+            }
+            for (int i = *NumOfEmployees - 1; i >= 0; --i, ++iterator) {
+                *Employees[i] = (*iterator)->id;
+            }
+        } catch (...) {//only possible exception is memory
+            return ALLOCATION_ERROR;
+        }
+
+        return SUCCESS;
+    }
+
+    StatusType GetHighestEarnerInEachCompany(int NumOfCompanies, int **Employees) {
+        if (!Employees || NumOfCompanies < 1) {
+            return INVALID_INPUT;
+        }
+        if (workingCompanies.getSize() < NumOfCompanies) {
+            return FAILURE;
+        }
+        *Employees = (int*) malloc(NumOfCompanies * sizeof(int));
+        if (!(*Employees)) {
+            return ALLOCATION_ERROR;
+        }
+
+        AVLTree<Company, CompareCompanyByID>::AVLIter iterator = workingCompanies.begin();
+        for (int i = 0; i < NumOfCompanies; ++i) {
+            Employees[i] = (*iterator)->employeesBySalary->getMax()->id;
+            ++iterator;
+        }
+
+        return SUCCESS;
+    }
+
+    StatusType GetNumEmployeesMatching(int CompanyID, int MinEmployeeID, int MaxEmployeeId,
+                                       int MinSalary, int MinGrade, int *TotalNumOfEmployees, int *NumOfEmployees){
+        if(MinEmployeeID < 0 || MaxEmployeeId < 0 || MaxEmployeeId < MinEmployeeID || MinGrade < 0 || MinSalary < 0
+            || CompanyID == 0 || !TotalNumOfEmployees || !NumOfEmployees){
+            return INVALID_INPUT;
+        }
+        try{
+            AVLTree<Employee, CompareEmpByID>::AVLIter iterator;
+            shared_ptr<Employee> maxIDEmployee = shared_ptr<Employee>(new Employee(MaxEmployeeId , 0 , 0 , nullptr));
+            CompareEmpByID cmp;
+            if(CompanyID < 0){
+                iterator = allEmpByID.findFirstBiggerThan(shared_ptr<Employee>(new Employee(MinEmployeeID , 0 , 0 , nullptr)));
+            }else{
+                shared_ptr<Company> company = workingCompanies.find(shared_ptr<Company>(new Company(CompanyID , 0)));
+                if(!company){
+                    return FAILURE;
+                }
+                iterator = company->employeesByID.findFirstBiggerThan(shared_ptr<Employee>(new Employee(MinEmployeeID , 0 , 0 , nullptr)));
+            }
+            *TotalNumOfEmployees = 0;
+            *NumOfEmployees = 0;
+            while (!(*iterator == maxIDEmployee) && cmp((*iterator) , maxIDEmployee)){
+                if((*iterator)->salary >= MinSalary && (*iterator)->grade >= MinGrade){
+                    *NumOfEmployees++;
+                }
+                *TotalNumOfEmployees++;
+                ++iterator;
+            }
+        }catch (...){
+            return ALLOCATION_ERROR;
+        }
+        return SUCCESS;
+    }
+
+    StatusType AcquireCompany(int AcquirerID, int TargetID, double Factor) {
+        if (AcquirerID <= 0 || TargetID <= 0 || TargetID == AcquirerID || Factor < 1.00) {
+            return INVALID_INPUT;
+        }
+
+        try {
+            shared_ptr<Company> target = allCompanies.find(shared_ptr<Company>(new Company(TargetID, 0)));
+            shared_ptr<Company> acquirer = allCompanies.find(shared_ptr<Company>(new Company(AcquirerID, 0)));
+
+            if (!target || !acquirer || acquirer->value < 10 * target->value) {
+                return FAILURE;
+            }
+
+            acquirer->employeesByID.merge(target->employeesByID);
+            acquirer->employeesBySalary.merge(target->employeesBySalary);
+
+            acquirer->value = int((acquirer->value + target->value) * Factor);
+        } catch (...) {
+            return ALLOCATION_ERROR;
+        }
+        return SUCCESS;
+    }
+
 };
 
 

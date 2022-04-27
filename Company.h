@@ -13,9 +13,8 @@ class Company {
 public:
     int id;
     int value;
-    AVLTree<shared_ptr<Employee>, CompareEmpByID> employeesByID;
-    AVLTree<shared_ptr<Employee>, CompareEmpBySalary> employeesBySalary;
-    shared_ptr<Employee> highestSalaryEmpInCompany;
+    AVLTree<Employee, CompareEmpByID> employeesByID;
+    AVLTree<Employee, CompareEmpBySalary> employeesBySalary;
 
     Company(int id, int value): id(id), value(value) {}
 
