@@ -136,7 +136,7 @@ public:
             if (!foundCompany) {
                 return FAILURE;
             }
-            *NumEmployees = foundCompany->employeesByID->getSize();
+            *NumEmployees = foundCompany->employeesByID.getSize();
             *Value = foundCompany->value;
         } catch (...) { // only possible exception is memory.
             return ALLOCATION_ERROR;
@@ -254,10 +254,10 @@ public:
                 if (!newCompany) {
                     return FAILURE;
                 }
-                if(newCompany->employeesByID->isEmpty()){
+                if(newCompany->employeesByID.isEmpty()){
                     return FAILURE;
                 }
-                *EmployeeID = newCompany->employeesBySalary->getMax()->id;
+                *EmployeeID = newCompany->employeesBySalary.getMax()->id;
             }catch (...){
                 return ALLOCATION_ERROR;
             }
@@ -315,7 +315,7 @@ public:
 
         AVLTree<Company, CompareCompanyByID>::AVLIter iterator = workingCompanies.begin();
         for (int i = 0; i < NumOfCompanies; ++i) {
-            Employees[i] = (*iterator)->employeesBySalary->getMax()->id;
+            *Employees[i] = (*iterator)->employeesBySalary.getMax()->id;
             ++iterator;
         }
 
@@ -345,9 +345,9 @@ public:
             *NumOfEmployees = 0;
             while (!(*iterator == maxIDEmployee) && cmp((*iterator) , maxIDEmployee)){
                 if((*iterator)->salary >= MinSalary && (*iterator)->grade >= MinGrade){
-                    *NumOfEmployees++;
+                    (*NumOfEmployees)++;
                 }
-                *TotalNumOfEmployees++;
+                (*TotalNumOfEmployees)++;
                 ++iterator;
             }
         }catch (...){

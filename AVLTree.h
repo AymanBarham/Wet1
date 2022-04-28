@@ -32,7 +32,7 @@ class AVLTree {
         }
         empty(toDelete->left);
         empty(toDelete->right);
-        delete toDelete;
+        toDelete.reset();
     }
     // private functions
     shared_ptr<TreeNode> initNode(shared_ptr<T> data) {
@@ -459,10 +459,10 @@ public:
         friend class AVLTree<T, Pred>;
     };
 
-    AVLIter begin() {
+    AVLIter begin() const {
         return AVLIter(this->min, this->max);
     }
-    AVLIter end(){
+    AVLIter end() const {
         return AVLIter(nullptr , nullptr);
     }
 };

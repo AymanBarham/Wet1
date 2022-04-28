@@ -6,6 +6,7 @@
 #include "Employee.h"
 #include "CompareEmpByID.h"
 #include "CompareEmpBySalary.h"
+#include "AVLTree.h"
 
 using std::shared_ptr;
 
@@ -24,10 +25,6 @@ public:
         return !employeesByID.isEmpty();
     }
 
-    void addEmployee(shared_ptr<Employee> toAdd) {
-        employeesByID.add(toAdd);
-        employees
-    }
 };
 
 bool operator==(const Company& c1, const Company& c2) {
