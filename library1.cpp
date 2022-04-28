@@ -126,7 +126,8 @@ StatusType GetNumEmployeesMatching(void *DS, int CompanyID, int MinEmployeeID, i
 }
 
 void Quit(void** DS) {
-    delete (DataStructure*)DS;
+    delete (DataStructure*)(*DS);
+    *DS = nullptr;
 }
 
     /*_234218_WET1 */

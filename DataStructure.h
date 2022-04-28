@@ -372,6 +372,8 @@ public:
             acquirer->employeesByID.merge(target->employeesByID);
             acquirer->employeesBySalary.merge(target->employeesBySalary);
 
+            allCompanies.remove(target);
+
             acquirer->value = int((acquirer->value + target->value) * Factor);
         } catch (...) {
             return ALLOCATION_ERROR;

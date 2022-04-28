@@ -25,13 +25,21 @@ class AVLTree {
     int size; // initialize size
 
 
-
-    void empty(shared_ptr<TreeNode> toDelete){
+    void empty() {
+        if(size > 0){
+            empty_aux(root);
+            root = nullptr;
+            size = 0;
+            min = nullptr;
+            max = nullptr;
+        }
+    }
+    void empty_aux(shared_ptr<TreeNode> toDelete){
         if(!toDelete){
             return;
         }
-        empty(toDelete->left);
-        empty(toDelete->right);
+        empty_aux(toDelete->left);
+        empty_aux(toDelete->right);
         toDelete.reset();
     }
     // private functions
@@ -316,7 +324,7 @@ class AVLTree {
 public:
     AVLTree() : size(0) {}
     ~AVLTree() {
-        empty(root);
+        empty();
     }
     class AVLIter;
     // exceptions
@@ -404,11 +412,9 @@ public:
 
         mergeSortedArrays(array3, array1, array2, this->size, toMergeFrom.size);
 
-
-
         shared_ptr<TreeNode> newRoot = fromArrayToTree(array3, 0, this->size + toMergeFrom.size - 1, nullptr);
 
-        empty(this->root);
+        empty();
 
 
         this->root = newRoot;
