@@ -176,7 +176,7 @@ class AVLTree {
     }
     void fixMax() {
         this->max = root;
-        if (!root) {
+        if (root) {
             while (this->max->right) {
                 this->max = this->max->right;
             }
@@ -184,7 +184,7 @@ class AVLTree {
     }
     void fixMin() {
         this->min = root;
-        if (!root) {
+        if (root) {
             while (this->min->left) {
                 this->min = this->min->left;
             }
@@ -269,33 +269,33 @@ class AVLTree {
         return node->father;
     }
 
-    void mergeSortedArrays(shared_ptr<shared_ptr<T>> toMergeTo , shared_ptr<shared_ptr<T>> toMerge1 , shared_ptr<shared_ptr<T>> toMerge2
+    void mergeSortedArrays(shared_ptr<T>* toMergeTo , shared_ptr<T>* toMerge1 , shared_ptr<T>* toMerge2
                            , int n1 , int n2) const{
         int i1 = 0 , i2 = 0 , iTo = 0;
         while(i1 < n1 && i2 < n2){
-            if(predicate(toMerge1.get()[i1] , toMerge2.get()[i2])){
-                toMergeTo.get()[iTo] = toMerge1.get()[i1++];
+            if(predicate(toMerge1[i1] , toMerge2[i2])){
+                toMergeTo[iTo] = toMerge1[i1++];
             }else{
-                toMergeTo.get()[iTo] = toMerge2.get()[i2++];
+                toMergeTo[iTo] = toMerge2[i2++];
             }
             iTo++;
         }
         for(; i1 < n1 ; i1++ , iTo++){
-            toMergeTo.get()[iTo] = toMerge1.get()[i1];
+            toMergeTo[iTo] = toMerge1[i1];
         }
         for(; i2 < n1 ; i2++ , iTo++){
-            toMergeTo.get()[iTo] = toMerge2.get()[i2];
+            toMergeTo[iTo] = toMerge2[i2];
         }
     }
 
-    shared_ptr<TreeNode> fromArrayToTree(shared_ptr<shared_ptr<T>> toBuild, int start, int end, shared_ptr<TreeNode> father) const{
-        if (start >= end) {
+    shared_ptr<TreeNode> fromArrayToTree(shared_ptr<T>* toBuild, int start, int end, shared_ptr<TreeNode> father) const{
+        if (start > end) {
             return nullptr;
         }
 
         int mid = (start + end) / 2;
 
-        shared_ptr<TreeNode> node = initNode(toBuild.get()[mid]);
+        shared_ptr<TreeNode> node = initNode(toBuild[mid]);
         node->father = father;
         node->left = fromArrayToTree(toBuild, start, mid - 1, node);
         node->right = fromArrayToTree(toBuild, mid + 1, end, node);
@@ -305,10 +305,10 @@ class AVLTree {
         return node;
     }
 
-    void fromTreeToArray(shared_ptr<shared_ptr<T>> toBuildTo) const {
+    void fromTreeToArray(shared_ptr<T>* toBuildTo) const {
         int i = 0;
         for (AVLIter avlIter = begin(); avlIter != end() ; ++avlIter) {
-            toBuildTo.get()[i++] = *avlIter;
+            toBuildTo[i++] = *avlIter;
         }
     }
 public:
@@ -392,25 +392,31 @@ public:
             return;
         }
 
-        shared_ptr<shared_ptr<T>> array1 = shared_ptr<shared_ptr<T>>(new shared_ptr<T>[this->size]);
-        shared_ptr<shared_ptr<T>> array2 = shared_ptr<shared_ptr<T>>(new shared_ptr<T>[toMergeFrom.size]);
-        shared_ptr<shared_ptr<T>> array3 = shared_ptr<shared_ptr<T>>(
-                new shared_ptr<T>[this->size + toMergeFrom.size]);
+        shared_ptr<T>* array1 = new shared_ptr<T>[this->size];
+        shared_ptr<T>* array2 = new shared_ptr<T>[toMergeFrom.size];
+        shared_ptr<T>* array3 =
+                new shared_ptr<T>[this->size + toMergeFrom.size];
 
         this->fromTreeToArray(array1);
         toMergeFrom.fromTreeToArray(array2);
 
         mergeSortedArrays(array3, array1, array2, this->size, toMergeFrom.size);
 
+
+
+        shared_ptr<TreeNode> newRoot = fromArrayToTree(array3, 0, this->size + toMergeFrom.size - 1, nullptr);
+
+        empty(this->root);
+
+
+        this->root = newRoot;
         fixMax();
         fixMin();
         this->size += toMergeFrom.size;
 
-        shared_ptr<TreeNode> newRoot = fromArrayToTree(array3, 0, this->size + toMergeFrom.size, nullptr);
-
-        empty(this->root);
-
-        this->root = newRoot;
+        delete[] array1;
+        delete[] array2;
+        delete[] array3;
     }
 
     // iterator and merge
@@ -453,6 +459,9 @@ public:
         }
 
         shared_ptr<T> operator*(){
+            if (!current) {
+                return nullptr;
+            }
             return current->data;
         }
 
