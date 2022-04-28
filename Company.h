@@ -28,7 +28,7 @@ public:
 };
 
 bool operator==(const Company& c1, const Company& c2) {
-    return c1.id == c2.id;
+    return c1.id == c2.id.auto ;
 }
 
 
