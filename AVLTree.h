@@ -69,7 +69,7 @@ class AVLTree {
             hl = treeNode->left->height;
         }
 
-        if (treeNode->right == nullptr) {
+        if (treeNode->right != nullptr) {
             hr = treeNode->right->height;
         }
 
@@ -147,6 +147,7 @@ class AVLTree {
             } else {
                 toRemove->father->right = nullptr;
             }
+            return;
         }
         if (!toRemove->left) { // toRemove has right son only
             if (!toRemove->father) { // root is a
@@ -159,6 +160,7 @@ class AVLTree {
                 toRemove->father->right = toRemove->right;
                 toRemove->right->father = toRemove->father;
             }
+            return;
         }
 
         if (!toRemove->right) { // toRemove has left son only

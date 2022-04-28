@@ -292,7 +292,7 @@ public:
                 return ALLOCATION_ERROR;
             }
             for (int i = *NumOfEmployees - 1; i >= 0; --i, ++iterator) {
-                *Employees[i] = (*iterator)->id;
+                (*Employees)[i] = (*iterator)->id;
             }
         } catch (...) {//only possible exception is memory
             return ALLOCATION_ERROR;
@@ -315,7 +315,7 @@ public:
 
         AVLTree<Company, CompareCompanyByID>::AVLIter iterator = workingCompanies.begin();
         for (int i = 0; i < NumOfCompanies; ++i) {
-            *Employees[i] = (*iterator)->employeesBySalary.getMax()->id;
+            (*Employees)[i] = (*iterator)->employeesBySalary.getMax()->id;
             ++iterator;
         }
 
