@@ -50,7 +50,7 @@ class AVLTree {
         if (treeNode == nullptr) {
             return nullptr;
         }
-        if (treeNode->data == toFind) {
+        if (*treeNode->data == *toFind) {
             return treeNode;
         }
 
@@ -366,7 +366,7 @@ public:
             return father;
         }
 
-        if (treeNode->data == toFind) {
+        if (*treeNode->data == *toFind) {
             return treeNode;
         }
 
