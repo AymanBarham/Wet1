@@ -3,4 +3,4 @@ project(Wet1)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Wet1 main.cpp Employee.h library1.h Company.h CompareEmpByID.h CompareEmpBySalary.h CompareCompanyByID.h DataStructure.cpp DataStructure.h AVLTree.h)
+add_executable(Wet1 Employee.h library1.h Company.h CompareEmpByID.h CompareEmpBySalary.h CompareCompanyByID.h DataStructure.h AVLTree.h library1.cpp main1.cpp)

@@ -35,7 +35,7 @@ class AVLTree {
         toDelete.reset();
     }
     // private functions
-    shared_ptr<TreeNode> initNode(shared_ptr<T> data) {
+    shared_ptr<TreeNode> initNode(shared_ptr<T> data) const {
         shared_ptr<TreeNode> node = shared_ptr<TreeNode>(new TreeNode());
 
         node->data = data;
@@ -249,11 +249,11 @@ class AVLTree {
 
 
     // aux
-    int maxInt(int x1, int x2) {
+    int maxInt(int x1, int x2) const {
         return x1 > x2 ? x1 : x2;
     }
     shared_ptr<TreeNode> findFirstBiggerThanAux(shared_ptr<T> data){
-        if(predicate(max->data , data)){
+        if(!max || predicate(max->data , data)){
             return nullptr;
         }
         shared_ptr<TreeNode> node = findLastNodeInSearch(root , nullptr , data);
@@ -269,33 +269,33 @@ class AVLTree {
         return node->father;
     }
 
-    void mergeSortedArrays(shared_ptr<T> toMergeTo[] , shared_ptr<T> toMerge1[] , shared_ptr<T> toMerge2[]
+    void mergeSortedArrays(shared_ptr<shared_ptr<T>> toMergeTo , shared_ptr<shared_ptr<T>> toMerge1 , shared_ptr<shared_ptr<T>> toMerge2
                            , int n1 , int n2) const{
         int i1 = 0 , i2 = 0 , iTo = 0;
         while(i1 < n1 && i2 < n2){
-            if(predicate(toMerge1[i1] , toMerge2[i2])){
-                toMergeTo[iTo] = toMerge1[i1++];
+            if(predicate(toMerge1.get()[i1] , toMerge2.get()[i2])){
+                toMergeTo.get()[iTo] = toMerge1.get()[i1++];
             }else{
-                toMergeTo[iTo] = toMerge2[i2++];
+                toMergeTo.get()[iTo] = toMerge2.get()[i2++];
             }
             iTo++;
         }
         for(; i1 < n1 ; i1++ , iTo++){
-            toMergeTo[iTo] = toMerge1[i1];
+            toMergeTo.get()[iTo] = toMerge1.get()[i1];
         }
         for(; i2 < n1 ; i2++ , iTo++){
-            toMergeTo[iTo] = toMerge2[i2];
+            toMergeTo.get()[iTo] = toMerge2.get()[i2];
         }
     }
 
-    shared_ptr<TreeNode> fromArrayToTree(shared_ptr<T> toBuild[], int start, int end, shared_ptr<TreeNode> father) const{
+    shared_ptr<TreeNode> fromArrayToTree(shared_ptr<shared_ptr<T>> toBuild, int start, int end, shared_ptr<TreeNode> father) const{
         if (start >= end) {
             return nullptr;
         }
 
         int mid = (start + end) / 2;
 
-        shared_ptr<TreeNode> node = initNode(toBuild[mid]);
+        shared_ptr<TreeNode> node = initNode(toBuild.get()[mid]);
         node->father = father;
         node->left = fromArrayToTree(toBuild, start, mid - 1, node);
         node->right = fromArrayToTree(toBuild, mid + 1, end, node);
@@ -305,10 +305,10 @@ class AVLTree {
         return node;
     }
 
-    void fromTreeToArray(shared_ptr<T> toBuildTo[]) const {
+    void fromTreeToArray(shared_ptr<shared_ptr<T>> toBuildTo) const {
         int i = 0;
         for (AVLIter avlIter = begin(); avlIter != end() ; ++avlIter) {
-            toBuildTo[i++] = *avlIter;
+            toBuildTo.get()[i++] = *avlIter;
         }
     }
 public:
@@ -326,7 +326,7 @@ public:
         if (!root) {
             root = initNode(data);
         } else {
-            if (!findNode(root, data)) {
+            if (findNode(root, data)) {
                 throw AlreadyExists();
             }
             insertNode(initNode(data), root, nullptr);

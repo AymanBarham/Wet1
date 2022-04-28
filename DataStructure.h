@@ -343,7 +343,7 @@ public:
             }
             *TotalNumOfEmployees = 0;
             *NumOfEmployees = 0;
-            while (!(*iterator == maxIDEmployee) && cmp((*iterator) , maxIDEmployee)){
+            while (iterator != allEmpByID.end() && !(*iterator == maxIDEmployee) && cmp((*iterator) , maxIDEmployee)){
                 if((*iterator)->salary >= MinSalary && (*iterator)->grade >= MinGrade){
                     (*NumOfEmployees)++;
                 }
