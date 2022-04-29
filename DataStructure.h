@@ -382,9 +382,7 @@ public:
             }
 
             allCompanies.remove(target);
-            if (target->isWorking()) {
-                workingCompanies.remove(target);
-            }
+
             if (!workingCompanies.find(acquirer)) {
                 workingCompanies.insert(acquirer);
             }

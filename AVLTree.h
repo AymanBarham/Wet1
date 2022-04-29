@@ -400,7 +400,7 @@ public:
         return AVLIter(findFirstBiggerThanAux(data) , max);
     }
 
-    void merge(const AVLTree<T, Pred>& toMergeFrom) {
+    void merge(AVLTree<T, Pred>& toMergeFrom) {
         if (this->size == 0) {
             this->root = toMergeFrom.root;
             this->size = toMergeFrom.size;
@@ -426,11 +426,12 @@ public:
 
         empty();
 
-
         this->root = newRoot;
         fixMax();
         fixMin();
         this->size += toMergeFrom.size;
+
+        toMergeFrom.empty();
 
         delete[] array1;
         delete[] array2;
