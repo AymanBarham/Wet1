@@ -69,6 +69,9 @@ class AVLTree {
         if (treeNode == nullptr) {
             return nullptr;
         }
+        if (treeNode->data == nullptr) {
+            return nullptr;
+        }
         if (*treeNode->data == *toFind) {
             return treeNode;
         }
@@ -411,6 +414,10 @@ public:
             this->size = toMergeFrom.size;
             fixMax();
             fixMin();
+            toMergeFrom.root = nullptr;
+            toMergeFrom.size = 0;
+            toMergeFrom.max = nullptr;
+            toMergeFrom.min = nullptr;
             return;
         }
         if (toMergeFrom.size == 0) {
