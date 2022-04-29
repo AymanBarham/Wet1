@@ -14112,7 +14112,7 @@ IncreaseCompanyValue: INVALID_INPUT
 GetCompanyInfo: SUCCESS. Company 3 has 2 employees and value 11
 GetEmployeeInfo: SUCCESS. Employee 601 works at 394 and earns 119 at grade 2
 GetEmployeeInfo: SUCCESS. Employee 7982 works at 3 and earns 125 at grade 9
-GetNumEmployeesMatching: SUCCESS. Out of 0, 0 match
+GetNumEmployeesMatching: SUCCESS. Out of 1, 0 match
 GetNumEmployeesMatching: INVALID_INPUT
 GetNumEmployeesMatching: INVALID_INPUT
 GetAllEmployeesBySalary: FAILURE

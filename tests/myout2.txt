@@ -5412,7 +5412,7 @@ Employee Rank || Employee ID
 147 - 5592
 148 - 810
 149 - 3620
-GetNumEmployeesMatching: SUCCESS. Out of 0, 0 match
+GetNumEmployeesMatching: SUCCESS. Out of 1, 0 match
 RemoveCompany: FAILURE
 AddCompany: SUCCESS
 GetNumEmployeesMatching: INVALID_INPUT
