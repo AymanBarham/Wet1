@@ -44,6 +44,12 @@ class AVLTree {
         if (toDelete->father) {
             toDelete->father.reset();
         }
+        if (toDelete->left) {
+            toDelete->left.reset();
+        }
+        if (toDelete->right) {
+            toDelete->right.reset();
+        }
         toDelete.reset();
     }
     // private functions
