@@ -1,0 +1,9 @@
+Instructions:
+redirect the input files (<) and output files (>)
+you may use the following bash (linux) command if you want: (replace <executable> with your executable name)
+	run all 100 tests with get:
+		for i  in {0..99}; do prog < in$i.txt > my_output_$i.txt ; done
+	to check for diffs in output, you can then use:
+		for i  in {0..99}; do diff -s -q --strip-trailing-cr out$i.txt my_output_$i.txt ; done
+	valgrind:
+		for i  in {0..1}; do valgrind --leak-check=full --show-reachable=yes --num-callers=20 <executable> < tests/in$i.txt | grep "ERROR SUMMARY\|total heap usage\|in use at exit"; done

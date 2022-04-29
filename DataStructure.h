@@ -95,7 +95,9 @@ public:
 //            }
 
             allCompanies.remove(toRemoveCompany);
-        } catch (...) { // only throw possible is memory
+        } catch(AVLTree<Company, CompareCompanyByID>::DoesntExist& e) {
+            return FAILURE;
+        } catch (...) {
             return ALLOCATION_ERROR;
         }
 
@@ -124,6 +126,7 @@ public:
                 workingCompanies.remove(foundEmp->company.lock());
             }
             foundEmp->company.lock().reset();
+
         } catch (...) { // only possible exception is memory.
             return ALLOCATION_ERROR;
         }
@@ -199,11 +202,16 @@ public:
             if (!foundEmp) {
                 return FAILURE;
             }
+
+            allEmpBySalary.remove(foundEmp);
+            foundEmp->company.lock()->employeesBySalary.remove(foundEmp);
             foundEmp->salary += SalaryIncrease;
             if(BumpGrade > 0)
             {
                 foundEmp->grade++;
             }
+            allEmpBySalary.insert(foundEmp);
+            foundEmp->company.lock()->employeesBySalary.insert(foundEmp);
         }
         catch (...){// only possible exception is memory.
             return ALLOCATION_ERROR;

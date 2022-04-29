@@ -113,12 +113,15 @@ class AVLTree {
 
         target->height = maxInt(getHeight(target->left), getHeight(target->right)) + 1;
 
-        balanceTree(target);
+        target = balanceTree(target);
 
         target->height = maxInt(getHeight(target->left), getHeight(target->right)) + 1;
         return target;
     }
-    void balanceTree(shared_ptr<TreeNode> target) {
+    shared_ptr<TreeNode> balanceTree(shared_ptr<TreeNode> target) {
+        if (BF(target) >= -1 && BF(target) <= 1) {
+            return target;
+        }
         if (BF(target) < -1) {
             if (BF(target->right) == 1) {
                 rotateRL(target);
@@ -132,6 +135,7 @@ class AVLTree {
                 rotateLL(target);
             }
         }
+        return target->father;
     }
 
     void removeNode(shared_ptr<TreeNode> toRemove) {
@@ -304,7 +308,7 @@ class AVLTree {
         for(; i1 < n1 ; i1++ , iTo++){
             toMergeTo[iTo] = toMerge1[i1];
         }
-        for(; i2 < n1 ; i2++ , iTo++){
+        for(; i2 < n2 ; i2++ , iTo++){
             toMergeTo[iTo] = toMerge2[i2];
         }
     }
@@ -474,6 +478,7 @@ public:
                         while (current->father->right == current) {
                             current = current->father;
                         }
+                        current = current->father;
                     }
                 }
             return *this;
