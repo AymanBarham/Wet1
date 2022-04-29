@@ -19,10 +19,10 @@ using std::shared_ptr;
 
 
 class DataStructure {
-    AVLTree<Employee, CompareEmpByID> allEmpByID;
-    AVLTree<Employee, CompareEmpBySalary> allEmpBySalary;
     AVLTree<Company, CompareCompanyByID> allCompanies;
     AVLTree<Company, CompareCompanyByID> workingCompanies;
+    AVLTree<Employee, CompareEmpByID> allEmpByID;
+    AVLTree<Employee, CompareEmpBySalary> allEmpBySalary;
     //shared_ptr<Employee> highestSalaryEmp;
 public:
     DataStructure() =default;
