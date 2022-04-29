@@ -341,10 +341,14 @@ public:
             || CompanyID == 0 || !TotalNumOfEmployees || !NumOfEmployees){
             return INVALID_INPUT;
         }
+        if (allEmpByID.isEmpty()) {
+            return FAILURE;
+        }
         try{
             AVLTree<Employee, CompareEmpByID>::AVLIter iterator;
             shared_ptr<Employee> maxIDEmployee = shared_ptr<Employee>(new Employee(MaxEmployeeId , 0 , 0 , nullptr));
             CompareEmpByID cmp;
+
             if(CompanyID < 0){
                 iterator = allEmpByID.findFirstBiggerThan(shared_ptr<Employee>(new Employee(MinEmployeeID , 0 , 0 , nullptr)));
             }else{
@@ -394,7 +398,7 @@ public:
                 emp->company = acquirer;
             }
 
-            if (!workingCompanies.find(acquirer)) {
+            if (!workingCompanies.find(acquirer) && acquirer->isWorking()) {
                 workingCompanies.insert(acquirer);
             }
 
