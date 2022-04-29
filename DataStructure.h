@@ -117,7 +117,7 @@ public:
             foundEmp->company->employeesByID.remove(foundEmp);
             foundEmp->company->employeesBySalary.remove(foundEmp);
 
-            if (!foundEmp->company->employeesByID.isEmpty()) {
+            if (foundEmp->company->employeesByID.isEmpty()) {
                 workingCompanies.remove(foundEmp->company);
             }
             foundEmp->company = nullptr;
