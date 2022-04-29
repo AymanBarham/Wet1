@@ -35,7 +35,7 @@ class AVLTree {
             max = nullptr;
         }
     }
-    void empty_aux(shared_ptr<TreeNode> toDelete){
+    void empty_aux(shared_ptr<TreeNode>& toDelete){
         if(!toDelete){
             return;
         }

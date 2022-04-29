@@ -34,7 +34,7 @@ public:
         }
 
         try {
-            allCompanies.insert(shared_ptr<Company>(new Company(CompanyID, Value)));
+                allCompanies.insert(shared_ptr<Company>(new Company(CompanyID, Value)));
         } catch (AVLTree<Company, CompareCompanyByID>::AlreadyExists& e) { // add avl exception here
             return FAILURE;
         } catch (std::runtime_error& error) {
