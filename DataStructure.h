@@ -374,14 +374,17 @@ public:
                 return FAILURE;
             }
 
+            if (target->isWorking()) {
+                workingCompanies.remove(target);
+            }
+
+            allCompanies.remove(target);
 
             acquirer->employeesByID.merge(target->employeesByID);
             acquirer->employeesBySalary.merge(target->employeesBySalary);
             for (const auto &emp: acquirer->employeesByID) {
                 emp->company = acquirer;
             }
-
-            allCompanies.remove(target);
 
             if (!workingCompanies.find(acquirer)) {
                 workingCompanies.insert(acquirer);
