@@ -7,6 +7,7 @@
 #include <memory>
 
 using std::shared_ptr;
+using std::weak_ptr;
 
 
 class Company;
@@ -16,7 +17,7 @@ public:
     int id;
     int grade;
     int salary;
-    shared_ptr<Company> company;
+    weak_ptr<Company> company;
 
     Employee(int id, int grade, int salary, shared_ptr<Company> company): id(id),
                 grade(grade), salary(salary), company(company) {}

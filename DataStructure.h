@@ -117,13 +117,13 @@ public:
 
             allEmpByID.remove(foundEmp);
             allEmpBySalary.remove(foundEmp);
-            foundEmp->company->employeesByID.remove(foundEmp);
-            foundEmp->company->employeesBySalary.remove(foundEmp);
+            foundEmp->company.lock()->employeesByID.remove(foundEmp);
+            foundEmp->company.lock()->employeesBySalary.remove(foundEmp);
 
-            if (foundEmp->company->employeesByID.isEmpty()) {
-                workingCompanies.remove(foundEmp->company);
+            if (foundEmp->company.lock()->employeesByID.isEmpty()) {
+                workingCompanies.remove(foundEmp->company.lock());
             }
-            foundEmp->company = nullptr;
+            foundEmp->company.lock().reset();
         } catch (...) { // only possible exception is memory.
             return ALLOCATION_ERROR;
         }
@@ -161,7 +161,7 @@ public:
             if (!foundEmp) {
                 return FAILURE;
             }
-            *EmployerID = foundEmp->company->id;
+            *EmployerID = foundEmp->company.lock()->id;
             *Salary = foundEmp->salary;
             *Grade = foundEmp->grade;
         }
@@ -226,7 +226,7 @@ public:
             if (!newCompany) {
                 return FAILURE;
             }
-            if(foundEmp->company == newCompany){
+            if(foundEmp->company.lock() == newCompany){
                 return FAILURE;
             }
             StatusType flag = RemoveEmployee(foundEmp->id);
