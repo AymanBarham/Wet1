@@ -6,7 +6,6 @@
 #define WET1_DATASTRUCTURE_H
 
 #include <iostream>
-using std::shared_ptr;
 
 #include "Company.h"
 #include "Employee.h"
@@ -16,6 +15,8 @@ using std::shared_ptr;
 #include "AVLTree.h"
 #include "library1.h"
 #include <memory>
+using std::shared_ptr;
+
 
 class DataStructure {
     AVLTree<Employee, CompareEmpByID> allEmpByID;
