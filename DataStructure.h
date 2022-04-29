@@ -90,9 +90,9 @@ public:
             if (workingCompanies.find(toRemoveCompany)) {
                 return FAILURE;
             }
-            if (!allCompanies.find(toRemoveCompany)) {
-                return FAILURE;
-            }
+//            if (!allCompanies.find(toRemoveCompany)) {
+//                return FAILURE;
+//            }
 
             allCompanies.remove(toRemoveCompany);
         } catch (...) { // only throw possible is memory
@@ -377,6 +377,9 @@ public:
 
             acquirer->employeesByID.merge(target->employeesByID);
             acquirer->employeesBySalary.merge(target->employeesBySalary);
+            for (const auto &emp: acquirer->employeesByID) {
+                emp->company = acquirer;
+            }
 
             allCompanies.remove(target);
             if (target->isWorking()) {
