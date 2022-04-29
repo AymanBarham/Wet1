@@ -40,6 +40,9 @@ class AVLTree {
         }
         empty_aux(toDelete->left);
         empty_aux(toDelete->right);
+        if (toDelete->father) {
+            toDelete->father.reset();
+        }
         toDelete.reset();
     }
     // private functions
