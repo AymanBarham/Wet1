@@ -424,12 +424,13 @@ public:
 
         shared_ptr<TreeNode> newRoot = fromArrayToTree(array3, 0, this->size + toMergeFrom.size - 1, nullptr);
 
+        int oldSize = this->size;
         empty();
 
         this->root = newRoot;
         fixMax();
         fixMin();
-        this->size += toMergeFrom.size;
+        this->size = oldSize + toMergeFrom.size;
 
         toMergeFrom.empty();
 
