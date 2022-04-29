@@ -19,10 +19,10 @@ using std::shared_ptr;
 
 
 class DataStructure {
-    AVLTree<Company, CompareCompanyByID> allCompanies;
-    AVLTree<Company, CompareCompanyByID> workingCompanies;
     AVLTree<Employee, CompareEmpByID> allEmpByID;
     AVLTree<Employee, CompareEmpBySalary> allEmpBySalary;
+    AVLTree<Company, CompareCompanyByID> allCompanies;
+    AVLTree<Company, CompareCompanyByID> workingCompanies;
     //shared_ptr<Employee> highestSalaryEmp;
 public:
     DataStructure() =default;
@@ -88,6 +88,9 @@ public:
         try {
             shared_ptr<Company> toRemoveCompany = shared_ptr<Company>(new Company(CompanyID, 0));
             if (workingCompanies.find(toRemoveCompany)) {
+                return FAILURE;
+            }
+            if (!allCompanies.find(toRemoveCompany)) {
                 return FAILURE;
             }
 
