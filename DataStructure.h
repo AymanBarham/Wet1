@@ -117,10 +117,10 @@ public:
             foundEmp->company->employeesByID.remove(foundEmp);
             foundEmp->company->employeesBySalary.remove(foundEmp);
 
-            if (foundEmp->company->employeesByID.isEmpty()) {
+            if (!foundEmp->company->employeesByID.isEmpty()) {
                 workingCompanies.remove(foundEmp->company);
             }
-            foundEmp->company.reset();
+            foundEmp->company = nullptr;
         } catch (...) { // only possible exception is memory.
             return ALLOCATION_ERROR;
         }
@@ -371,12 +371,16 @@ public:
                 return FAILURE;
             }
 
+
             acquirer->employeesByID.merge(target->employeesByID);
             acquirer->employeesBySalary.merge(target->employeesBySalary);
 
             allCompanies.remove(target);
             if (target->isWorking()) {
                 workingCompanies.remove(target);
+            }
+            if (!workingCompanies.find(acquirer)) {
+                workingCompanies.insert(acquirer);
             }
 
             acquirer->value = int((acquirer->value + target->value) * Factor);
