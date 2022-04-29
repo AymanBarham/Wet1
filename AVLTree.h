@@ -50,6 +50,7 @@ class AVLTree {
         if (toDelete->right) {
             toDelete->right.reset();
         }
+        toDelete->data.reset();
         toDelete.reset();
     }
     // private functions
