@@ -121,6 +121,7 @@ public:
             if (foundEmp->company->employeesByID.isEmpty()) {
                 workingCompanies.remove(foundEmp->company);
             }
+            foundEmp->company.reset();
         } catch (...) { // only possible exception is memory.
             return ALLOCATION_ERROR;
         }
