@@ -92,7 +92,6 @@ public:
             }
 
             allCompanies.remove(toRemoveCompany);
-
         } catch (...) { // only throw possible is memory
             return ALLOCATION_ERROR;
         }
@@ -376,6 +375,9 @@ public:
             acquirer->employeesBySalary.merge(target->employeesBySalary);
 
             allCompanies.remove(target);
+            if (target->isWorking()) {
+                workingCompanies.remove(target);
+            }
 
             acquirer->value = int((acquirer->value + target->value) * Factor);
         } catch (...) {
