@@ -15,6 +15,7 @@ using std::shared_ptr;
 //#include "CompareEmpBySalary.h"
 #include "AVLTree.h"
 #include "library1.h"
+#include <memory>
 
 class DataStructure {
     AVLTree<Employee, CompareEmpByID> allEmpByID;

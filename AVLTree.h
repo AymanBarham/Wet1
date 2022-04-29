@@ -4,6 +4,7 @@
 #define WET1_AVLTREE_H
 
 #include <iostream>
+#include <memory>
 //#include <math.h>
 using std::shared_ptr;
 using std::weak_ptr;
