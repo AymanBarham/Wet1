@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "Employee.h"
+#include <memory>
 using std::shared_ptr;
 
 class CompareEmpByID {

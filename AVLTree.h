@@ -4,6 +4,7 @@
 #define WET1_AVLTREE_H
 
 #include <iostream>
+#include <memory>
 //#include <math.h>
 using std::shared_ptr;
 using std::weak_ptr;
@@ -25,17 +26,35 @@ class AVLTree {
     int size; // initialize size
 
 
-
-    void empty(shared_ptr<TreeNode> toDelete){
+    void empty() {
+        if(size > 0){
+            empty_aux(root);
+            root = nullptr;
+            size = 0;
+            min = nullptr;
+            max = nullptr;
+        }
+    }
+    void empty_aux(shared_ptr<TreeNode>& toDelete){
         if(!toDelete){
             return;
         }
-        empty(toDelete->left);
-        empty(toDelete->right);
-        delete toDelete;
+        empty_aux(toDelete->left);
+        empty_aux(toDelete->right);
+        if (toDelete->father) {
+            toDelete->father.reset();
+        }
+        if (toDelete->left) {
+            toDelete->left.reset();
+        }
+        if (toDelete->right) {
+            toDelete->right.reset();
+        }
+        toDelete->data.reset();
+        toDelete.reset();
     }
     // private functions
-    shared_ptr<TreeNode> initNode(shared_ptr<T> data) {
+    shared_ptr<TreeNode> initNode(shared_ptr<T> data) const {
         shared_ptr<TreeNode> node = shared_ptr<TreeNode>(new TreeNode());
 
         node->data = data;
@@ -50,7 +69,10 @@ class AVLTree {
         if (treeNode == nullptr) {
             return nullptr;
         }
-        if (treeNode->data == toFind) {
+        if (treeNode->data == nullptr) {
+            return nullptr;
+        }
+        if (*treeNode->data == *toFind) {
             return treeNode;
         }
 
@@ -69,7 +91,7 @@ class AVLTree {
             hl = treeNode->left->height;
         }
 
-        if (treeNode->right == nullptr) {
+        if (treeNode->right != nullptr) {
             hr = treeNode->right->height;
         }
 
@@ -94,12 +116,15 @@ class AVLTree {
 
         target->height = maxInt(getHeight(target->left), getHeight(target->right)) + 1;
 
-        balanceTree(target);
+        target = balanceTree(target);
 
         target->height = maxInt(getHeight(target->left), getHeight(target->right)) + 1;
         return target;
     }
-    void balanceTree(shared_ptr<TreeNode> target) {
+    shared_ptr<TreeNode> balanceTree(shared_ptr<TreeNode> target) {
+        if (BF(target) >= -1 && BF(target) <= 1) {
+            return target;
+        }
         if (BF(target) < -1) {
             if (BF(target->right) == 1) {
                 rotateRL(target);
@@ -113,6 +138,7 @@ class AVLTree {
                 rotateLL(target);
             }
         }
+        return target->father;
     }
 
     void removeNode(shared_ptr<TreeNode> toRemove) {
@@ -147,6 +173,7 @@ class AVLTree {
             } else {
                 toRemove->father->right = nullptr;
             }
+            return;
         }
         if (!toRemove->left) { // toRemove has right son only
             if (!toRemove->father) { // root is a
@@ -159,6 +186,7 @@ class AVLTree {
                 toRemove->father->right = toRemove->right;
                 toRemove->right->father = toRemove->father;
             }
+            return;
         }
 
         if (!toRemove->right) { // toRemove has left son only
@@ -176,7 +204,7 @@ class AVLTree {
     }
     void fixMax() {
         this->max = root;
-        if (!root) {
+        if (root) {
             while (this->max->right) {
                 this->max = this->max->right;
             }
@@ -184,7 +212,7 @@ class AVLTree {
     }
     void fixMin() {
         this->min = root;
-        if (!root) {
+        if (root) {
             while (this->min->left) {
                 this->min = this->min->left;
             }
@@ -249,11 +277,11 @@ class AVLTree {
 
 
     // aux
-    int maxInt(int x1, int x2) {
+    int maxInt(int x1, int x2) const {
         return x1 > x2 ? x1 : x2;
     }
     shared_ptr<TreeNode> findFirstBiggerThanAux(shared_ptr<T> data){
-        if(predicate(max->data , data)){
+        if(!max || predicate(max->data , data)){
             return nullptr;
         }
         shared_ptr<TreeNode> node = findLastNodeInSearch(root , nullptr , data);
@@ -269,7 +297,7 @@ class AVLTree {
         return node->father;
     }
 
-    void mergeSortedArrays(shared_ptr<T> toMergeTo[] , shared_ptr<T> toMerge1[] , shared_ptr<T> toMerge2[]
+    void mergeSortedArrays(shared_ptr<T>* toMergeTo , shared_ptr<T>* toMerge1 , shared_ptr<T>* toMerge2
                            , int n1 , int n2) const{
         int i1 = 0 , i2 = 0 , iTo = 0;
         while(i1 < n1 && i2 < n2){
@@ -283,13 +311,13 @@ class AVLTree {
         for(; i1 < n1 ; i1++ , iTo++){
             toMergeTo[iTo] = toMerge1[i1];
         }
-        for(; i2 < n1 ; i2++ , iTo++){
+        for(; i2 < n2 ; i2++ , iTo++){
             toMergeTo[iTo] = toMerge2[i2];
         }
     }
 
-    shared_ptr<TreeNode> fromArrayToTree(shared_ptr<T> toBuild[], int start, int end, shared_ptr<TreeNode> father) const{
-        if (start >= end) {
+    shared_ptr<TreeNode> fromArrayToTree(shared_ptr<T>* toBuild, int start, int end, shared_ptr<TreeNode> father) const{
+        if (start > end) {
             return nullptr;
         }
 
@@ -305,7 +333,7 @@ class AVLTree {
         return node;
     }
 
-    void fromTreeToArray(shared_ptr<T> toBuildTo[]) const {
+    void fromTreeToArray(shared_ptr<T>* toBuildTo) const {
         int i = 0;
         for (AVLIter avlIter = begin(); avlIter != end() ; ++avlIter) {
             toBuildTo[i++] = *avlIter;
@@ -314,7 +342,7 @@ class AVLTree {
 public:
     AVLTree() : size(0) {}
     ~AVLTree() {
-        empty(root);
+        empty();
     }
     class AVLIter;
     // exceptions
@@ -326,7 +354,7 @@ public:
         if (!root) {
             root = initNode(data);
         } else {
-            if (!findNode(root, data)) {
+            if (findNode(root, data)) {
                 throw AlreadyExists();
             }
             insertNode(initNode(data), root, nullptr);
@@ -366,7 +394,7 @@ public:
             return father;
         }
 
-        if (treeNode->data == toFind) {
+        if (*treeNode->data == *toFind) {
             return treeNode;
         }
 
@@ -380,37 +408,47 @@ public:
         return AVLIter(findFirstBiggerThanAux(data) , max);
     }
 
-    void merge(const AVLTree<T, Pred>& toMergeFrom) {
+    void merge(AVLTree<T, Pred>& toMergeFrom) {
         if (this->size == 0) {
             this->root = toMergeFrom.root;
             this->size = toMergeFrom.size;
             fixMax();
             fixMin();
+            toMergeFrom.root = nullptr;
+            toMergeFrom.size = 0;
+            toMergeFrom.max = nullptr;
+            toMergeFrom.min = nullptr;
             return;
         }
         if (toMergeFrom.size == 0) {
             return;
         }
 
-        shared_ptr<shared_ptr<T>> array1 = shared_ptr<shared_ptr<T>>(new shared_ptr<T>[this->size]);
-        shared_ptr<shared_ptr<T>> array2 = shared_ptr<shared_ptr<T>>(new shared_ptr<T>[toMergeFrom.size]);
-        shared_ptr<shared_ptr<T>> array3 = shared_ptr<shared_ptr<T>>(
-                new shared_ptr<T>[this->size + toMergeFrom.size]);
+        shared_ptr<T>* array1 = new shared_ptr<T>[this->size];
+        shared_ptr<T>* array2 = new shared_ptr<T>[toMergeFrom.size];
+        shared_ptr<T>* array3 =
+                new shared_ptr<T>[this->size + toMergeFrom.size];
 
         this->fromTreeToArray(array1);
         toMergeFrom.fromTreeToArray(array2);
 
         mergeSortedArrays(array3, array1, array2, this->size, toMergeFrom.size);
 
-        fixMax();
-        fixMin();
-        this->size += toMergeFrom.size;
+        shared_ptr<TreeNode> newRoot = fromArrayToTree(array3, 0, this->size + toMergeFrom.size - 1, nullptr);
 
-        shared_ptr<TreeNode> newRoot = fromArrayToTree(array3, 0, this->size + toMergeFrom.size, nullptr);
-
-        empty(this->root);
+        int oldSize = this->size;
+        empty();
 
         this->root = newRoot;
+        fixMax();
+        fixMin();
+        this->size = oldSize + toMergeFrom.size;
+
+        toMergeFrom.empty();
+
+        delete[] array1;
+        delete[] array2;
+        delete[] array3;
     }
 
     // iterator and merge
@@ -447,22 +485,26 @@ public:
                         while (current->father->right == current) {
                             current = current->father;
                         }
+                        current = current->father;
                     }
                 }
             return *this;
         }
 
         shared_ptr<T> operator*(){
+            if (!current) {
+                return nullptr;
+            }
             return current->data;
         }
 
         friend class AVLTree<T, Pred>;
     };
 
-    AVLIter begin() {
+    AVLIter begin() const {
         return AVLIter(this->min, this->max);
     }
-    AVLIter end(){
+    AVLIter end() const {
         return AVLIter(nullptr , nullptr);
     }
 };

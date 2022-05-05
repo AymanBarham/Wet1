@@ -6,7 +6,6 @@
 #define WET1_DATASTRUCTURE_H
 
 #include <iostream>
-using std::shared_ptr;
 
 #include "Company.h"
 #include "Employee.h"
@@ -15,6 +14,9 @@ using std::shared_ptr;
 //#include "CompareEmpBySalary.h"
 #include "AVLTree.h"
 #include "library1.h"
+#include <memory>
+using std::shared_ptr;
+
 
 class DataStructure {
     AVLTree<Employee, CompareEmpByID> allEmpByID;
@@ -32,7 +34,7 @@ public:
         }
 
         try {
-            allCompanies.insert(shared_ptr<Company>(new Company(CompanyID, Value)));
+                allCompanies.insert(shared_ptr<Company>(new Company(CompanyID, Value)));
         } catch (AVLTree<Company, CompareCompanyByID>::AlreadyExists& e) { // add avl exception here
             return FAILURE;
         } catch (std::runtime_error& error) {
@@ -88,10 +90,14 @@ public:
             if (workingCompanies.find(toRemoveCompany)) {
                 return FAILURE;
             }
+//            if (!allCompanies.find(toRemoveCompany)) {
+//                return FAILURE;
+//            }
 
             allCompanies.remove(toRemoveCompany);
-
-        } catch (...) { // only throw possible is memory
+        } catch(AVLTree<Company, CompareCompanyByID>::DoesntExist& e) {
+            return FAILURE;
+        } catch (...) {
             return ALLOCATION_ERROR;
         }
 
@@ -113,12 +119,14 @@ public:
 
             allEmpByID.remove(foundEmp);
             allEmpBySalary.remove(foundEmp);
-            foundEmp->company->employeesByID.remove(foundEmp);
-            foundEmp->company->employeesBySalary.remove(foundEmp);
+            foundEmp->company.lock()->employeesByID.remove(foundEmp);
+            foundEmp->company.lock()->employeesBySalary.remove(foundEmp);
 
-            if (foundEmp->company->employeesByID.isEmpty()) {
-                workingCompanies.remove(foundEmp->company);
+            if (foundEmp->company.lock()->employeesByID.isEmpty()) {
+                workingCompanies.remove(foundEmp->company.lock());
             }
+            foundEmp->company.lock().reset();
+
         } catch (...) { // only possible exception is memory.
             return ALLOCATION_ERROR;
         }
@@ -136,7 +144,7 @@ public:
             if (!foundCompany) {
                 return FAILURE;
             }
-            *NumEmployees = foundCompany->employeesByID->getSize();
+            *NumEmployees = foundCompany->employeesByID.getSize();
             *Value = foundCompany->value;
         } catch (...) { // only possible exception is memory.
             return ALLOCATION_ERROR;
@@ -156,7 +164,7 @@ public:
             if (!foundEmp) {
                 return FAILURE;
             }
-            *EmployerID = foundEmp->company->id;
+            *EmployerID = foundEmp->company.lock()->id;
             *Salary = foundEmp->salary;
             *Grade = foundEmp->grade;
         }
@@ -194,11 +202,16 @@ public:
             if (!foundEmp) {
                 return FAILURE;
             }
+
+            allEmpBySalary.remove(foundEmp);
+            foundEmp->company.lock()->employeesBySalary.remove(foundEmp);
             foundEmp->salary += SalaryIncrease;
             if(BumpGrade > 0)
             {
                 foundEmp->grade++;
             }
+            allEmpBySalary.insert(foundEmp);
+            foundEmp->company.lock()->employeesBySalary.insert(foundEmp);
         }
         catch (...){// only possible exception is memory.
             return ALLOCATION_ERROR;
@@ -221,7 +234,7 @@ public:
             if (!newCompany) {
                 return FAILURE;
             }
-            if(foundEmp->company == newCompany){
+            if(foundEmp->company.lock() == newCompany){
                 return FAILURE;
             }
             StatusType flag = RemoveEmployee(foundEmp->id);
@@ -254,10 +267,10 @@ public:
                 if (!newCompany) {
                     return FAILURE;
                 }
-                if(newCompany->employeesByID->isEmpty()){
+                if(newCompany->employeesByID.isEmpty()){
                     return FAILURE;
                 }
-                *EmployeeID = newCompany->employeesBySalary->getMax()->id;
+                *EmployeeID = newCompany->employeesBySalary.getMax()->id;
             }catch (...){
                 return ALLOCATION_ERROR;
             }
@@ -292,7 +305,7 @@ public:
                 return ALLOCATION_ERROR;
             }
             for (int i = *NumOfEmployees - 1; i >= 0; --i, ++iterator) {
-                *Employees[i] = (*iterator)->id;
+                (*Employees)[i] = (*iterator)->id;
             }
         } catch (...) {//only possible exception is memory
             return ALLOCATION_ERROR;
@@ -315,7 +328,7 @@ public:
 
         AVLTree<Company, CompareCompanyByID>::AVLIter iterator = workingCompanies.begin();
         for (int i = 0; i < NumOfCompanies; ++i) {
-            Employees[i] = (*iterator)->employeesBySalary->getMax()->id;
+            (*Employees)[i] = (*iterator)->employeesBySalary.getMax()->id;
             ++iterator;
         }
 
@@ -328,10 +341,14 @@ public:
             || CompanyID == 0 || !TotalNumOfEmployees || !NumOfEmployees){
             return INVALID_INPUT;
         }
+        if (allEmpByID.isEmpty()) {
+            return FAILURE;
+        }
         try{
             AVLTree<Employee, CompareEmpByID>::AVLIter iterator;
             shared_ptr<Employee> maxIDEmployee = shared_ptr<Employee>(new Employee(MaxEmployeeId , 0 , 0 , nullptr));
             CompareEmpByID cmp;
+
             if(CompanyID < 0){
                 iterator = allEmpByID.findFirstBiggerThan(shared_ptr<Employee>(new Employee(MinEmployeeID , 0 , 0 , nullptr)));
             }else{
@@ -343,11 +360,11 @@ public:
             }
             *TotalNumOfEmployees = 0;
             *NumOfEmployees = 0;
-            while (!(*iterator == maxIDEmployee) && cmp((*iterator) , maxIDEmployee)){
+            while (iterator != allEmpByID.end() && ((*(*iterator) == *maxIDEmployee) || cmp((*iterator) , maxIDEmployee))){
                 if((*iterator)->salary >= MinSalary && (*iterator)->grade >= MinGrade){
-                    *NumOfEmployees++;
+                    (*NumOfEmployees)++;
                 }
-                *TotalNumOfEmployees++;
+                (*TotalNumOfEmployees)++;
                 ++iterator;
             }
         }catch (...){
@@ -369,8 +386,21 @@ public:
                 return FAILURE;
             }
 
+            if (target->isWorking()) {
+                workingCompanies.remove(target);
+            }
+
+            allCompanies.remove(target);
+
             acquirer->employeesByID.merge(target->employeesByID);
             acquirer->employeesBySalary.merge(target->employeesBySalary);
+            for (const auto &emp: acquirer->employeesByID) {
+                emp->company = acquirer;
+            }
+
+            if (!workingCompanies.find(acquirer) && acquirer->isWorking()) {
+                workingCompanies.insert(acquirer);
+            }
 
             acquirer->value = int((acquirer->value + target->value) * Factor);
         } catch (...) {
