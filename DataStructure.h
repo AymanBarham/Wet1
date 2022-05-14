@@ -255,8 +255,8 @@ public:
         if(CompanyID == 0 || !EmployeeID){
             return INVALID_INPUT;
         }
-        if(CompanyID < 0){
-            if(allCompanies.isEmpty()){
+        if(CompanyID < 0){ // allEmpSalaryMomomomomomo
+            if(allEmpBySalary.isEmpty()){
                 return FAILURE;
             }
             *EmployeeID = allEmpBySalary.getMax()->id;
