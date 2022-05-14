@@ -256,7 +256,7 @@ public:
             return INVALID_INPUT;
         }
         if(CompanyID < 0){
-            if(allCompanies.isEmpty()){
+            if(allEmpBySalary.isEmpty()){
                 return FAILURE;
             }
             *EmployeeID = allEmpBySalary.getMax()->id;
